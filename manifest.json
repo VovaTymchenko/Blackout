@@ -1,0 +1,10 @@
+{
+  "name": "Blackout",
+  "description": "Force dark theme",
+  "version": "0.1",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "Popup_Blackout.html",
+    "default_icon": "Icon_Blackout.png"
+  }
+}
