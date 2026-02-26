@@ -1,6 +1,6 @@
 let darkModeApplied = false;
 
-// Listen for messages from popup.js
+// listen for messages from popup.js
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) =>
 {
     if (msg.toggle)
@@ -43,3 +43,13 @@ function removeDark()
     const elem = document.getElementById("force-dark-theme");
     if (elem) elem.remove();
 }
+
+// auto-apply on page load
+(async () =>
+{
+    const { enabledSites = [] } = await chrome.storage.sync.get("enabledSites");
+    if (enabledSites.includes(window.location.hostname)) {
+        applyDark();
+        darkModeApplied = true;
+    }
+})();
