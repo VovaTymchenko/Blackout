@@ -7,6 +7,13 @@ async function getCurrentHostname()
     return new URL(tab.url).hostname;
 }
 
+// tell content script in the tab to toggle dark mode
+async function toggleMsg()
+{
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.tabs.sendMessage(tab.id, { toggle: true });
+}
+
 async function loadSites()
 {
     const { enabledSites = [] } = await chrome.storage.sync.get("enabledSites");
@@ -26,6 +33,10 @@ async function loadSites()
         {
             const newList = enabledSites.filter(s => s !== site);
             await chrome.storage.sync.set({ enabledSites: newList });
+
+            const currHostname = await getCurrentHostname();
+            if (site === currHostname) await toggleMsg();
+
             loadSites();
         };
 
@@ -44,9 +55,7 @@ toggleBtn.onclick = async () =>
 
     await chrome.storage.sync.set({ enabledSites: newList });
 
-    // tell content script in the tab to toggle dark mode
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    chrome.tabs.sendMessage(tab.id, { toggle: true });
+    toggleMsg();
 
     loadSites(); // refresh popup list
 };
