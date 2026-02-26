@@ -7,13 +7,6 @@ async function getCurrentHostname()
     return new URL(tab.url).hostname;
 }
 
-// tell content script in the tab to toggle dark mode
-async function toggleMsg()
-{
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    chrome.tabs.sendMessage(tab.id, { toggle: true });
-}
-
 async function loadSites()
 {
     const { enabledSites = [] } = await chrome.storage.sync.get("enabledSites");
@@ -26,7 +19,7 @@ async function loadSites()
         li.textContent = site;
 
         const remove = document.createElement("span");
-        remove.textContent = "x";
+        remove.textContent = "-";
         remove.className = "remove";
 
         remove.onclick = async () =>
@@ -34,8 +27,14 @@ async function loadSites()
             const newList = enabledSites.filter(s => s !== site);
             await chrome.storage.sync.set({ enabledSites: newList });
 
-            const currHostname = await getCurrentHostname();
-            if (site === currHostname) await toggleMsg();
+            const tabs = await chrome.tabs.query({ currentWindow: true });
+            for (const tab of tabs)
+            {
+                if (new URL(tab.url).hostname === site)
+                {
+                    chrome.tabs.sendMessage(tab.id, { toggle: true });
+                }
+            }
 
             loadSites();
         };
@@ -55,7 +54,9 @@ toggleBtn.onclick = async () =>
 
     await chrome.storage.sync.set({ enabledSites: newList });
 
-    toggleMsg();
+    // tell content script in the tab to toggle dark mode
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.tabs.sendMessage(tab.id, { toggle: true });
 
     loadSites(); // refresh popup list
 };
