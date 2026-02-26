@@ -1,10 +1,28 @@
 {
   "name": "Blackout",
   "description": "Force dark theme",
-  "version": "0.1",
+  "version": "0.5",
   "manifest_version": 3,
+
   "action": {
-    "default_popup": "Popup_Blackout.html",
-    "default_icon": "Icon_Blackout.png"
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+
+  "permissions": [ "storage", "tabs", "activeTab" ],
+
+  "content_scripts": [
+    {
+      "matches": [ "<all_urls>" ],
+      "js": [ "content.js" ],
+      "run_at": "document_start"
+    }
+  ],
+
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
   }
 }
