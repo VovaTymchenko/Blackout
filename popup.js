@@ -27,13 +27,12 @@ async function loadSites()
             const newList = enabledSites.filter(s => s !== site);
             await chrome.storage.sync.set({ enabledSites: newList });
 
-            const tabs = await chrome.tabs.query({ currentWindow: true });
+            const tabs = await chrome.tabs.query({});
             for (const tab of tabs)
             {
-                if (new URL(tab.url).hostname === site)
-                {
-                    chrome.tabs.sendMessage(tab.id, { toggle: true });
-                }
+                const hostname = new URL(tab.url).hostname;
+                if (hostname === site)
+                    chrome.tabs.sendMessage(tab.id, { enabled: newList.includes(hostname) });
             }
         };
 
