@@ -1,16 +1,20 @@
 let darkModeApplied = false;
 
 // listen for messages from popup.js
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) =>
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) =>
 {
-    if (msg.toggle)
+    if (message.enabled !== undefined)
     {
-        if (darkModeApplied)
-            removeDark();
-        else
+        if (message.enabled && !darkModeApplied)
+        {
             applyDark();
-
-        darkModeApplied = !darkModeApplied;
+            darkModeApplied = true;
+        }
+        else if (!message.enabled && darkModeApplied)
+        {
+            removeDark();
+            darkModeApplied = false;
+        }
     }
 });
 

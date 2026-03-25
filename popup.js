@@ -44,6 +44,11 @@ async function loadSites()
     }
 }
 
+//chrome.storage.onChanged.addListener((changes, area) =>
+//{
+//    if (area === "sync" && changes.enabledSites) loadSites();
+//});
+
 toggleBtn.onclick = async () =>
 {
     const hostname = await getCurrentHostname();
@@ -55,8 +60,19 @@ toggleBtn.onclick = async () =>
     await chrome.storage.sync.set({ enabledSites: newList });
 
     // tell content script in the tab to toggle dark mode
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    chrome.tabs.sendMessage(tab.id, { toggle: true });
+    const tabs = await chrome.tabs.query({});
+    for (const tab of tabs)
+    {
+        if (!tab.url) continue;
+
+        try {
+            const url = new URL(tab.url);
+
+            if (url.hostname === hostname)
+                chrome.tabs.sendMessage(tab.id, { enabled: newList.includes(hostname) });
+        }
+        catch {}
+    }
 
     loadSites(); // refresh popup list
 };
