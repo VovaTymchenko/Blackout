@@ -35,8 +35,6 @@ async function loadSites()
                     chrome.tabs.sendMessage(tab.id, { toggle: true });
                 }
             }
-
-            loadSites();
         };
 
         li.appendChild(remove);
@@ -44,10 +42,10 @@ async function loadSites()
     }
 }
 
-//chrome.storage.onChanged.addListener((changes, area) =>
-//{
-//    if (area === "sync" && changes.enabledSites) loadSites();
-//});
+chrome.storage.onChanged.addListener((changes, area) =>
+{
+    if (area === "sync" && changes.enabledSites) loadSites();
+}); // no need to call loadSites() on every change now
 
 toggleBtn.onclick = async () =>
 {
@@ -73,8 +71,6 @@ toggleBtn.onclick = async () =>
         }
         catch {}
     }
-
-    loadSites(); // refresh popup list
 };
 
 loadSites(); // load list on popup open
